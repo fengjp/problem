@@ -10,7 +10,8 @@ __pycache__/
 *.png 
 # C extensions
 *.so
- 
+pm2.json
+
 # Distribution / packaging
 .Python
 build/
