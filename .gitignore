@@ -2,10 +2,10 @@
 ### Python template
 # Byte-compiled / optimized / DLL files
 __pycache__/
-static/
 *.py[cod]
 *$py.class
- 
+*.doc 
+*.docx 
 # C extensions
 *.so
  
