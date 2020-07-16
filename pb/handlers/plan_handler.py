@@ -675,7 +675,7 @@ class getBarHandler(BaseHandler):
         else:
             self.write(dict(code=-1, msg='没有相关数据', count=0, data=[]))
 
-penson_urls = [
+plan_urls = [
     (r"/v2/plan/add/", PlanListHandler),
     (r"/v2/plan/list/", getPlanListHandler),
     # (r"/v2/plan/getfile/", getPlanfileHandler),

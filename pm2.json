@@ -1,8 +1,8 @@
 {
   "apps": [{
-    "name": "problem-9200",
-    "script": "/usr/bin/python3 startup.py --service=pb --port=9200",
-    "cwd": "/opt/codo/problem/",
+    "name": "codo-problem-9200",
+    "script": "/usr/local/bin/python3.7 startup.py --service=pb --port=9200",
+    "cwd": "/Users/fengjp/codo/codo-problem/",
     "max_memory_restart": "150M",
     "log_date_format"  : "YYYY-MM-DD HH:mm Z",
     "log_file"   : "/var/log/supervisor/problem.log",
