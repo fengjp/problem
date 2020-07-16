@@ -18,8 +18,7 @@ from websdk.tools import check_password
 from libs.base_handler import BaseHandler
 from websdk.db_context import DBContext
 # from models.admin import Users, UserRoles,model_to_dict as users_model_to_dict
-from models.problem import CaseList, CaseUsers, model_to_dict
-from models.problem import PlanList,  model_to_dict  as   model_to_dict2
+from models.problem import PlanList, model_to_dict
 from websdk.consts import const
 from websdk.cache_context import cache_conn
 from websdk.web_logs import ins_log
@@ -34,89 +33,90 @@ from docx import shared
 import os
 
 
-class CaseListHandler(BaseHandler):
+class PlanListHandler(BaseHandler):
     def post(self, *args, **kwargs):
         data = json.loads(self.request.body.decode("utf-8"))
-        case_name = data.get('case_name', None)  # 个案名称
-        case_priority = data.get('case_priority', None)  # 优先级
-        case_executor = data.get('case_executor', False)  # 执行人
-        case_type = data.get('case_type', False)  # 类型
+        plan_name = str(data.get('plan_name', None))  # 计划名称
+        plan_priority = data.get('plan_priority', None)  # 优先级
+        plan_executor = data.get('plan_executor', False)  # 执行人
+        plan_type = data.get('plan_type', False)  # 类型
         demander = data.get('demander', False)  # 需求人
-        case_details = data.get('case_details', False)  # 详情描述
-        case_source = data.get('case_source', False)  # 来源
+        plan_details = data.get('plan_details', False)  # 详情描述
+        plan_source = data.get('plan_source', False)  # 来源
 
         demand_unit = data.get('demand_unit', False)  # 需求单位
-        case_status = data.get('case_status', False)  # 状态
-        case_obj = data.get('case_obj', False)  # 项目
-        case_stime = data.get('case_stime', False)
-        case_etime = data.get('case_etime', False)
-        case_creator = data.get('case_creator', False)
-        case_ltime = data.get('case_ltime', False)
+        plan_status = data.get('plan_status', False)  # 状态
+        plan_obj = data.get('plan_obj', False)  # 项目
+        plan_stime = data.get('plan_stime', False)
+        plan_etime = data.get('plan_etime', False)
+        plan_creator = data.get('plan_creator', False)
+        plan_ltime = data.get('plan_ltime', False)
 
         import uuid
         temp = str(uuid.uuid1().int >> 64)
         with DBContext('w', None, True) as session:
-            session.add(CaseList(
-                case_num=temp,
-                case_name=case_name,
-                case_priority=case_priority,
-                case_executor=case_executor,
-                case_type=case_type,
+            session.add(PlanList(
+                plan_num=temp,
+                plan_name=plan_name,
+                plan_priority=plan_priority,
+                plan_executor=plan_executor,
+                plan_type=plan_type,
                 demander=demander,
-                case_details=case_details,
-                case_source=case_source,
+                plan_details=plan_details,
+                plan_source=plan_source,
                 demand_unit=demand_unit,
-                case_status=case_status,
-                case_obj=case_obj,
-                case_stime=case_stime,
-                case_creator=case_creator,
-                case_etime=case_etime,
-                case_ltime=case_ltime))
+                plan_status=plan_status,
+                plan_obj=plan_obj,
+                plan_stime=plan_stime,
+                plan_creator=plan_creator,
+                plan_etime=plan_etime,
+                plan_ltime=plan_ltime))
             session.commit()
         self.write(dict(code=0, msg='成功', count=0, data=[]))
 
     def put(self, *args, **kwargs):
         data = json.loads(self.request.body.decode("utf-8"))
-        case_num = data.get('case_num', None)  # 编号
-        case_id = int(data.get('case_id', None))  # id号
-        case_name = data.get('case_name', None)  # 个案名称
-        case_priority = data.get('case_priority', None)  # 优先级
-        case_executor = data.get('case_executor', False)  # 执行人
-        case_type = data.get('case_type', False)  # 类型
+        plan_num = data.get('plan_num', None)  # 编号
+        plan_id = int(data.get('plan_id', None))  # id号
+        plan_name = str(data.get('plan_name', None))  # 个案名称
+        plan_priority = data.get('plan_priority', None)  # 优先级
+        plan_executor = data.get('plan_executor', False)  # 执行人
+        plan_type = data.get('plan_type', False)  # 类型
         demander = data.get('demander', False)  # 需求人
-        case_details = data.get('case_details', False)  # 详情描述
-        case_source = data.get('case_source', False)  # 来源
+        plan_details = data.get('plan_details', False)  # 详情描述
+        plan_source = data.get('plan_source', False)  # 来源
         demand_unit = data.get('demand_unit', False)  # 需求单位
-        case_status = data.get('case_status', False)  # 状态
-        case_obj = data.get('case_obj', False)  # 项目
-        case_stime = data.get('case_stime', False)
-        case_etime = data.get('case_etime', False)
-        case_creator = data.get('case_creator', False)
-        case_ltime = data.get('case_ltime', False)  #
+        plan_status = data.get('plan_status', False)  # 状态
+        plan_obj = data.get('plan_obj', False)  # 项目
+        plan_stime = data.get('plan_stime', False)
+        plan_etime = data.get('plan_etime', False)
+        plan_creator = data.get('plan_creator', False)
+        plan_ltime = data.get('plan_ltime', False)  #
         with DBContext('w', None, True) as session:
-            session.query(CaseList).filter(CaseList.id == case_id).update({
-                CaseList.case_name: case_name,
-                CaseList.case_priority: case_priority,
-                CaseList.case_executor: case_executor,
-                CaseList.case_type: case_type,
-                CaseList.demander: demander,
-                CaseList.case_details: case_details,
-                CaseList.case_source: case_source,
-                CaseList.demand_unit: demand_unit,
-                CaseList.case_status: case_status,
-                CaseList.case_obj: case_obj,
-                CaseList.case_stime: case_stime,
-                CaseList.case_etime: case_etime,
-                CaseList.case_creator: case_creator,
-                CaseList.case_ltime: case_ltime,
+            session.query(PlanList).filter(PlanList.id == plan_id).update({
+                PlanList.plan_name: plan_name,
+                PlanList.plan_priority: plan_priority,
+                PlanList.plan_executor: plan_executor,
+                PlanList.plan_type: plan_type,
+                PlanList.demander: demander,
+                PlanList.plan_details: plan_details,
+                PlanList.plan_source: plan_source,
+                PlanList.demand_unit: demand_unit,
+                PlanList.plan_status: plan_status,
+                PlanList.plan_obj: plan_obj,
+                PlanList.plan_stime: plan_stime,
+                PlanList.plan_etime: plan_etime,
+                PlanList.plan_creator: plan_creator,
+                PlanList.plan_ltime: plan_ltime,
             })
             session.commit()
         self.write(dict(code=0, msg='成功', count=0, data=[]))
 
 
-class getCaseListHandler(BaseHandler):
+class getPlanListHandler(BaseHandler):
     def get(self, *args, **kwargs):
         data_list = []
+
         # username = self.get_current_user()
         nickname = self.get_current_nickname()
         # toname = self.get_argument('key', strip=True)  # 要查询的字段
@@ -126,70 +126,75 @@ class getCaseListHandler(BaseHandler):
         tolimit = int(self.get_argument('limit', strip=10))  # 要查询条数
         isExport = self.get_argument('isExport')            # 是否导出
         limit_start = (topage - 1) * tolimit
-
+        # ins_log.read_log('info', "800000000000000000000000000000000000")
+        # ins_log.read_log('info', tovalue)
+        # ins_log.read_log('info', "800000000000000000000000000000000000")
         with DBContext('r') as session:
             params = {}
+            conditions = []
             if tovalue:
                 params = eval(tovalue)
-            conditions = []
+            else:
+                # 默认查询状态是"处理中"的
+                conditions.append(PlanList.plan_status == "处理中")
             if self.is_superuser:
                 pass
             else:
-                conditions.append(or_(CaseList.case_executor == nickname, CaseList.case_creator == nickname))
-            if params.get('case_name', ''):
-                conditions.append(CaseList.case_name.like('%{}%'.format(params['case_name'])))
-            if params.get('case_details', ''):
-                conditions.append(CaseList.case_details.like('%{}%'.format(params['case_details'])))
-            if params.get('case_type', ''):
-                conditions.append(CaseList.case_type == params['case_type'])
-            if params.get('case_status', ''):
-                conditions.append(CaseList.case_status == params['case_status'])
-            if params.get('case_priority', ''):
-                conditions.append(CaseList.case_priority == params['case_priority'])
+                conditions.append(or_(PlanList.plan_executor == nickname, PlanList.plan_creator == nickname))
+            if params.get('plan_name', ''):
+                conditions.append(PlanList.plan_name.like('%{}%'.format(params['plan_name'])))
+            if params.get('plan_details', ''):
+                conditions.append(PlanList.plan_details.like('%{}%'.format(params['plan_details'])))
+            if params.get('plan_type', ''):
+                conditions.append(PlanList.plan_type == params['plan_type'])
+            if params.get('plan_status', ''):
+                conditions.append(PlanList.plan_status == params['plan_status'])
+            if params.get('plan_priority', ''):
+                conditions.append(PlanList.plan_priority == params['plan_priority'])
             if params.get('demander', ''):
-                conditions.append(CaseList.demander.like('%{}%'.format(params['demander'])))
-            if params.get('case_source', ''):
-                conditions.append(CaseList.case_source == params['case_source'])
-            if params.get('case_obj', ''):
-                conditions.append(CaseList.case_obj == params['case_obj'])
+                conditions.append(PlanList.demander.like('%{}%'.format(params['demander'])))
+            if params.get('plan_source', ''):
+                conditions.append(PlanList.plan_source == params['plan_source'])
+            if params.get('plan_obj', ''):
+                conditions.append(PlanList.plan_obj == params['plan_obj'])
             if params.get('demand_unit', ''):
-                conditions.append(CaseList.demand_unit == params['demand_unit'])
-            if params.get('case_ltime', ''):
-                conditions.append(CaseList.case_ltime == params['case_ltime'])
-            if params.get('case_stime', ''):
-                conditions.append(CaseList.case_stime >= params['case_stime'])
-            if params.get('case_etime', ''):
-                conditions.append(CaseList.case_etime <= params['case_etime'])
+                conditions.append(PlanList.demand_unit == params['demand_unit'])
+            if params.get('plan_ltime', ''):
+                conditions.append(PlanList.plan_ltime == params['plan_ltime'])
+            if params.get('plan_stime', ''):
+                conditions.append(PlanList.plan_stime >= params['plan_stime'])
+            if params.get('plan_etime', ''):
+                conditions.append(PlanList.plan_etime <= params['plan_etime'])
 
             if isExport != 'false':
-                todata = session.query(CaseList).filter(*conditions).order_by(CaseList.ctime.desc()).all()
-                tocount = session.query(CaseList).filter(*conditions).count()
+                todata = session.query(PlanList).filter(*conditions).order_by(PlanList.ctime.desc()).all()
+                tocount = session.query(PlanList).filter(*conditions).count()
             else:
-                todata = session.query(CaseList).filter(*conditions).order_by(CaseList.ctime.desc()).offset(
+                todata = session.query(PlanList).filter(*conditions).order_by(PlanList.ctime.desc()).offset(
                     limit_start).limit(int(tolimit)).all()
-                tocount = session.query(CaseList).filter(*conditions).count()
+                tocount = session.query(PlanList).filter(*conditions).count()
 
         for msg in todata:
-            case_dict = {}
+            plan_dict = {}
             data_dict = model_to_dict(msg)
-            case_dict["id"] = data_dict["id"]
-            case_dict["case_num"] = data_dict["case_num"]
-            case_dict["case_obj"] = data_dict["case_obj"]
-            case_dict["demand_unit"] = data_dict["demand_unit"]
-            case_dict["case_details"] = data_dict["case_details"]
-            case_dict["case_type"] = data_dict["case_type"]
-            case_dict["case_ltime"] = data_dict["case_ltime"]
-            case_dict["case_name"] = data_dict["case_name"]
-            case_dict["case_status"] = data_dict["case_status"]
-            case_dict["case_priority"] = data_dict["case_priority"]
-            case_dict["demander"] = data_dict["demander"]
-            case_dict["case_executor"] = data_dict["case_executor"]
-            case_dict["case_source"] = data_dict["case_source"]
-            case_dict["case_details"] = data_dict["case_details"]
-            case_dict["case_stime"] = str(data_dict["case_stime"])
-            case_dict["case_etime"] = str(data_dict["case_etime"])
-            case_dict["case_creator"] = data_dict["case_creator"]
-            data_list.append(case_dict)
+            plan_dict["id"] = data_dict["id"]
+            plan_dict["plan_num"] = data_dict["plan_num"]
+            plan_dict["plan_obj"] = data_dict["plan_obj"]
+            plan_dict["demand_unit"] = data_dict["demand_unit"]
+            plan_dict["plan_details"] = data_dict["plan_details"]
+            plan_dict["plan_type"] = data_dict["plan_type"]
+            plan_dict["plan_ltime"] = data_dict["plan_ltime"]
+            plan_dict["plan_name"] = data_dict["plan_name"]
+            plan_dict["plan_status"] = data_dict["plan_status"]
+            plan_dict["plan_priority"] = data_dict["plan_priority"]
+            plan_dict["demander"] = data_dict["demander"]
+            plan_dict["plan_executor"] = data_dict["plan_executor"]
+            plan_dict["plan_source"] = data_dict["plan_source"]
+            plan_dict["plan_details"] = data_dict["plan_details"]
+            plan_dict["plan_stime"] = str(data_dict["plan_stime"])
+            plan_dict["plan_etime"] = str(data_dict["plan_etime"])
+            plan_dict["plan_creator"] = data_dict["plan_creator"]
+            data_list.append(plan_dict)
 
         if len(data_list) > 0:
             self.write(dict(code=0, msg='获取成功', count=tocount, data=data_list))
@@ -197,56 +202,22 @@ class getCaseListHandler(BaseHandler):
             self.write(dict(code=-1, msg='没有相关数据', count=0, data=[]))
 
 
-class getCasefileHandler(BaseHandler):
+class getPlanfileHandler(BaseHandler):
     def get(self, *args, **kwargs):
         data_list = []
         nickname = self.get_current_nickname()
         tostart = self.get_argument('startdate', strip=True)  # 要查询的关键字
         toend = self.get_argument('enddate', strip=True)  # 要查询的关键字
-        #CaseList表
+
         with DBContext('r') as session:
             params = {}
             conditions = []
             # if self.is_superuser:
             #     pass
             # else:
-            #     conditions.append(CaseList.case_executor == nickname)
-            conditions.append(CaseList.case_stime >= tostart)
-            conditions.append(CaseList.case_etime <= toend)
-            todata = session.query(CaseList).filter(*conditions).order_by(CaseList.ctime.desc()).all()
-        for msg in todata:
-            case_dict = {}
-            data_dict = model_to_dict(msg)
-            case_dict["id"] = data_dict["id"]
-            case_dict["case_num"] = data_dict["case_num"]
-            case_dict["case_obj"] = data_dict["case_obj"]
-            case_dict["demand_unit"] = data_dict["demand_unit"]
-            case_dict["case_details"] = data_dict["case_details"]
-            case_dict["case_type"] = data_dict["case_type"]
-            case_dict["case_ltime"] = data_dict["case_ltime"]
-            case_dict["case_name"] = data_dict["case_name"]
-            case_dict["case_status"] = data_dict["case_status"]
-            case_dict["case_priority"] = data_dict["case_priority"]
-            case_dict["demander"] = data_dict["demander"]
-            case_dict["case_executor"] = data_dict["case_executor"]
-            case_dict["case_source"] = data_dict["case_source"]
-            case_dict["case_details"] = data_dict["case_details"]
-            case_dict["case_stime"] = str(data_dict["case_stime"])
-            case_dict["case_etime"] = str(data_dict["case_etime"])
-            case_dict["case_creator"] = data_dict["case_creator"]
-            data_list.append(case_dict)
-        #PlanList表
-        plandata_list = []  #计划工作完成情况
-        with DBContext('r') as session:
-            params = {}
-            conditions = []
-            # if self.is_superuser:
-            #     pass
-            # else:
-            #     conditions.append(CaseList.case_executor == nickname)
+            #     conditions.append(PlanList.plan_executor == nickname)
             conditions.append(PlanList.plan_stime >= tostart)
             conditions.append(PlanList.plan_etime <= toend)
-            conditions.append(PlanList.plan_status == "处理中")
             todata = session.query(PlanList).filter(*conditions).order_by(PlanList.ctime.desc()).all()
         for msg in todata:
             plan_dict = {}
@@ -268,11 +239,9 @@ class getCasefileHandler(BaseHandler):
             plan_dict["plan_stime"] = str(data_dict["plan_stime"])
             plan_dict["plan_etime"] = str(data_dict["plan_etime"])
             plan_dict["plan_creator"] = data_dict["plan_creator"]
-            plandata_list.append(plan_dict)
-        ins_log.read_log('info', "800000000000000000000000000000000000")
-        ins_log.read_log('info', plandata_list)
-        ins_log.read_log('info', "800000000000000000000000000000000000")
-        if (len(data_list) + len(plandata_list)) > 0:
+            data_list.append(plan_dict)
+
+        if len(data_list) > 0:
             import docx
             import time, datetime
             flag = 0 #周报0月报1
@@ -362,24 +331,21 @@ class getCasefileHandler(BaseHandler):
             laiwen_list = []     #来问
             upgrade_list = []    #升级
             fault_list = []      #故障
-
+            plan_list = []       #计划工作完成情况
             especially_list = [] #特急/耗时长的情况
             sudden_list = []  # 其他突发工作
-            # data_list.extend(plan_list) #合并两个列表
             for   i in data_list:
-                if i["case_source"] == '来文':
+                if i["plan_source"] == '来文':
                     laiwen_list.append(i)
                     totable.add_row()
-                if i["case_type"] == '应用升级':
+                if i["plan_type"] == '应用升级':
                     upgrade_list.append(i)
                     totable.add_row()
-                if i["case_type"] == '故障':
+                if i["plan_type"] == '故障':
                     fault_list.append(i)
                     totable.add_row()
-                if i["case_priority"] == '特急' or int(i["case_ltime"]) >= 240:
+                if i["plan_priority"] == '特急' or int(i["plan_ltime"]) >= 240:
                     especially_list.append(i)
-                    totable.add_row()
-            for  i  in  plandata_list :
                     totable.add_row()
 
             rows_index +=  1 # 行数
@@ -392,7 +358,7 @@ class getCasefileHandler(BaseHandler):
             else:
                 for  k  in  range(0,len(laiwen_list)):
                     totable.cell(rows_index, 1).text = "来文情况"
-                    totable.cell(k + 1, 2).text =str(k+1)+ '.' + laiwen_list[k]["case_name"]
+                    totable.cell(k + 1, 2).text =str(k+1)+ '.' + laiwen_list[k]["plan_name"]
                 totable.cell(rows_index, 1).merge(totable.cell(len(laiwen_list), 1))
 
             rows_index += len(laiwen_list)  # 行数
@@ -405,7 +371,7 @@ class getCasefileHandler(BaseHandler):
             else:
                 for  j  in  range(0,len(upgrade_list)):
                     totable.cell( rows_index, 1).text = "升级情况"
-                    totable.cell(rows_index + j, 2).text = str(j+1)+ '.' + upgrade_list[j]["case_name"]
+                    totable.cell(rows_index + j, 2).text = str(j+1)+ '.' + upgrade_list[j]["plan_name"]
                 totable.cell(rows_index, 1).merge(totable.cell(merge_index, 1))
 
             rows_index += len(upgrade_list)  # 行数
@@ -418,23 +384,23 @@ class getCasefileHandler(BaseHandler):
             else:
                 for  h  in  range(0,len(fault_list)):
                     totable.cell(rows_index, 1).text = "故障情况"
-                    totable.cell(rows_index + h, 2).text = str(h+1)+ '.' + fault_list[h]["case_name"]
+                    totable.cell(rows_index + h, 2).text = str(h+1)+ '.' + fault_list[h]["plan_name"]
                 totable.cell(rows_index, 1).merge(totable.cell(merge_index, 1))
 
             rows_index += len(fault_list)  # 行数
-            merge_index += len(plandata_list)  # 合并个数
-            if len(plandata_list) == 0:
+            merge_index += len(plan_list)  # 合并个数
+            if len(plan_list) == 0:
                 totable.add_row()
                 totable.cell(rows_index, 1).text = "计划工作完成情况"
                 rows_index += 1  # 行数
                 merge_index += 1  # 合并个数
             else:
-                for  g  in  range(0,len(plandata_list)):
+                for  g  in  range(0,len(plan_list)):
                     totable.cell(rows_index, 1).text = "计划工作完成情况"
-                    totable.cell(rows_index + g, 2).text = str(g+1)+ '.' + plandata_list[g]["plan_name"]
+                    totable.cell(rows_index + g, 2).text = str(g+1)+ '.' + plan_list[g]["plan_name"]
                 totable.cell(rows_index, 1).merge(totable.cell(merge_index, 1))
 
-            rows_index += len(plandata_list)  # 行数
+            rows_index += len(plan_list)  # 行数
             merge_index += len(especially_list)  # 合并个数
             if len(especially_list) == 0:
                 totable.add_row()
@@ -444,7 +410,7 @@ class getCasefileHandler(BaseHandler):
             else:
                 for g in range(0, len(especially_list)):
                     totable.cell(rows_index, 1).text = "重要工作情况"
-                    totable.cell(rows_index + g, 2).text = str(g+1)+ '.' +especially_list[g]["case_name"]
+                    totable.cell(rows_index + g, 2).text = str(g+1)+ '.' +especially_list[g]["plan_name"]
                 totable.cell(rows_index, 1).merge(totable.cell(merge_index, 1))
 
             rows_index += len(especially_list)  # 行数
@@ -457,11 +423,11 @@ class getCasefileHandler(BaseHandler):
             else:
                 for g in range(0, len(sudden_list)):
                     totable.cell(rows_index, 1).text = "其他突发工作"
-                    totable.cell(rows_index + g, 2).text = str(g+1)+ '.' + sudden_list[g]["case_name"]
+                    totable.cell(rows_index + g, 2).text = str(g+1)+ '.' + sudden_list[g]["plan_name"]
                 totable.cell(rows_index, 1).merge(totable.cell(merge_index, 1))
 
-            # ins_log.read_log('info', especially_list)
-            # ins_log.read_log('info', len(especially_list))
+            ins_log.read_log('info', especially_list)
+            ins_log.read_log('info', len(especially_list))
             totable.cell(1, 0).merge(totable.cell(merge_index, 0))
 
             tempstr = ''
@@ -471,28 +437,28 @@ class getCasefileHandler(BaseHandler):
             #个案数据统计分析
             with DBContext('r') as session:
                 conditions = []
-                conditions.append(CaseList.case_source == "来文")
-                conditions.append(CaseList.case_stime >= tostart)
-                conditions.append(CaseList.case_etime <= toend)
-                lime = session.query(func.count(CaseList.case_source),func.date_format(CaseList.case_stime, '%Y-%m-%d').label('date')).filter(*conditions).group_by('date').all()
+                conditions.append(PlanList.plan_source == "来文")
+                conditions.append(PlanList.plan_stime >= tostart)
+                conditions.append(PlanList.plan_etime <= toend)
+                lime = session.query(func.count(PlanList.plan_source),func.date_format(PlanList.plan_stime, '%Y-%m-%d').label('date')).filter(*conditions).group_by('date').all()
             with DBContext('r') as session:
                 conditions = []
-                conditions.append(CaseList.case_type == "应用升级")
-                conditions.append(CaseList.case_stime >= tostart)
-                conditions.append(CaseList.case_etime <= toend)
-                lime2 = session.query(func.count(CaseList.case_type),func.date_format(CaseList.case_stime, '%Y-%m-%d').label('date')).filter(*conditions).group_by('date').all()
+                conditions.append(PlanList.plan_type == "应用升级")
+                conditions.append(PlanList.plan_stime >= tostart)
+                conditions.append(PlanList.plan_etime <= toend)
+                lime2 = session.query(func.count(PlanList.plan_type),func.date_format(PlanList.plan_stime, '%Y-%m-%d').label('date')).filter(*conditions).group_by('date').all()
             with DBContext('r') as session:
                 conditions = []
-                conditions.append(CaseList.case_type == "故障")
-                conditions.append(CaseList.case_stime >= tostart)
-                conditions.append(CaseList.case_etime <= toend)
-                lime3 = session.query(func.count(CaseList.case_type),func.date_format(CaseList.case_stime, '%Y-%m-%d').label('date')).filter(*conditions).group_by('date').all()
+                conditions.append(PlanList.plan_type == "故障")
+                conditions.append(PlanList.plan_stime >= tostart)
+                conditions.append(PlanList.plan_etime <= toend)
+                lime3 = session.query(func.count(PlanList.plan_type),func.date_format(PlanList.plan_stime, '%Y-%m-%d').label('date')).filter(*conditions).group_by('date').all()
             with DBContext('r') as session:
                 conditions = []
-                conditions.append(or_(CaseList.case_priority == "特急", CaseList.case_ltime >= 240))
-                conditions.append(CaseList.case_stime >= tostart)
-                conditions.append(CaseList.case_etime <= toend)
-                lime4 = session.query(func.count(CaseList.case_priority),func.date_format(CaseList.case_stime, '%Y-%m-%d').label('date')).filter(*conditions).group_by('date').all()
+                conditions.append(or_(PlanList.plan_priority == "特急", PlanList.plan_ltime >= 240))
+                conditions.append(PlanList.plan_stime >= tostart)
+                conditions.append(PlanList.plan_etime <= toend)
+                lime4 = session.query(func.count(PlanList.plan_priority),func.date_format(PlanList.plan_stime, '%Y-%m-%d').label('date')).filter(*conditions).group_by('date').all()
 
             # ins_log.read_log('info', lime)
             # ins_log.read_log('info', lime2)
@@ -617,10 +583,8 @@ class getCasefileHandler(BaseHandler):
             p = paragraph.insert_paragraph_before(text="  ")
             paragraph = doc.paragraphs[12]  # 获取段落位置
             paragraph.runs[-1].add_picture(filename, width=shared.Inches(5))  # 在runs的最后一段文字后添加图片/
-            Base_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            upload_path = '{}/static/report/files/'.format(Base_DIR)
-            # doc.save(u"/opt/codo/codo-problem/static/report/files/" + tempstr)  # 保存文档
-            doc.save(upload_path + tempstr)  # 保存文档
+
+            doc.save(u"/opt/codo/codo-problem/static/report/files/" + tempstr)  # 保存文档
             #http://192.168.2.200:8200/static/report/files/%E7%BB%B4%E6%8A%A4%E7%BB%84%E5%B7%A5%E4%BD%9C%E6%8A%A5%E5%91%8A_admin[20200601-20200630].docx
             # ins_log.read_log('info',self.request.host)
             urlstr = "http://" + self.request.host  + "/static/report/files/" + tempstr
@@ -642,12 +606,12 @@ def getlist(date_list,lime):
         sum_flag = 0
     # ins_log.read_log('info', sum_list)
     return sum_list
-class caseDelete(BaseHandler):
+class PlanDelete(BaseHandler):
     def delete(self, *args, **kwargs):
         data = json.loads(self.request.body.decode("utf-8"))
         toid = int(data.get('id', None))  # id号
         with DBContext('w', None, True) as session:
-            session.query(CaseList).filter(CaseList.id == toid).delete(synchronize_session=False)
+            session.query(PlanList).filter(PlanList.id == toid).delete(synchronize_session=False)
             session.commit()
         return self.write(dict(code=0, msg='删除成功'))
 
@@ -656,35 +620,35 @@ class getBarHandler(BaseHandler):
     def get(self, *args, **kwargs):
         data_list = []
         nickname = self.get_current_nickname()
-        tostart = self.get_argument('startdate', strip=True) + " " + "00:00:00"  # 要查询的关键字
-        toend = self.get_argument('enddate', strip=True) + " " + "23:59:59" # 要查询的关键字
+        tostart = self.get_argument('startdate', strip=True)  # 要查询的关键字
+        toend = self.get_argument('enddate', strip=True)  # 要查询的关键字
 
         with DBContext('r') as session:
             conditions = []
-            conditions.append(CaseList.case_stime >= tostart)
-            conditions.append(CaseList.case_etime <= toend)
-            todata = session.query(CaseList).filter(*conditions).order_by(CaseList.ctime.desc()).all()
+            conditions.append(PlanList.plan_stime >= tostart)
+            conditions.append(PlanList.plan_etime <= toend)
+            todata = session.query(PlanList).filter(*conditions).order_by(PlanList.ctime.desc()).all()
         for msg in todata:
-            case_dict = {}
+            plan_dict = {}
             data_dict = model_to_dict(msg)
-            case_dict["id"] = data_dict["id"]
-            case_dict["case_num"] = data_dict["case_num"]
-            case_dict["case_obj"] = data_dict["case_obj"]
-            case_dict["demand_unit"] = data_dict["demand_unit"]
-            case_dict["case_details"] = data_dict["case_details"]
-            case_dict["case_type"] = data_dict["case_type"]
-            case_dict["case_ltime"] = data_dict["case_ltime"]
-            case_dict["case_name"] = data_dict["case_name"]
-            case_dict["case_status"] = data_dict["case_status"]
-            case_dict["case_priority"] = data_dict["case_priority"]
-            case_dict["demander"] = data_dict["demander"]
-            case_dict["case_executor"] = data_dict["case_executor"]
-            case_dict["case_source"] = data_dict["case_source"]
-            case_dict["case_details"] = data_dict["case_details"]
-            case_dict["case_stime"] = str(data_dict["case_stime"])
-            case_dict["case_etime"] = str(data_dict["case_etime"])
-            case_dict["case_creator"] = data_dict["case_creator"]
-            data_list.append(case_dict)
+            plan_dict["id"] = data_dict["id"]
+            plan_dict["plan_num"] = data_dict["plan_num"]
+            plan_dict["plan_obj"] = data_dict["plan_obj"]
+            plan_dict["demand_unit"] = data_dict["demand_unit"]
+            plan_dict["plan_details"] = data_dict["plan_details"]
+            plan_dict["plan_type"] = data_dict["plan_type"]
+            plan_dict["plan_ltime"] = data_dict["plan_ltime"]
+            plan_dict["plan_name"] = data_dict["plan_name"]
+            plan_dict["plan_status"] = data_dict["plan_status"]
+            plan_dict["plan_priority"] = data_dict["plan_priority"]
+            plan_dict["demander"] = data_dict["demander"]
+            plan_dict["plan_executor"] = data_dict["plan_executor"]
+            plan_dict["plan_source"] = data_dict["plan_source"]
+            plan_dict["plan_details"] = data_dict["plan_details"]
+            plan_dict["plan_stime"] = str(data_dict["plan_stime"])
+            plan_dict["plan_etime"] = str(data_dict["plan_etime"])
+            plan_dict["plan_creator"] = data_dict["plan_creator"]
+            data_list.append(plan_dict)
 
         if len(data_list) > 0:
             laiwen_list = []     #来问
@@ -694,13 +658,13 @@ class getBarHandler(BaseHandler):
             especially_list = [] #特急/耗时长的情况
             sudden_list = []  # 其他突发工作
             for   i in data_list:
-                if i["case_source"] == '来文':
+                if i["plan_source"] == '来文':
                     laiwen_list.append(i)
-                if i["case_type"] == '应用升级':
+                if i["plan_type"] == '应用升级':
                     upgrade_list.append(i)
-                if i["case_type"] == '故障':
+                if i["plan_type"] == '故障':
                     fault_list.append(i)
-                if i["case_priority"] == '特急' or int(i["case_ltime"]) >= 240:
+                if i["plan_priority"] == '特急' or int(i["plan_ltime"]) >= 240:
                     especially_list.append(i)
             other_all = len(data_list) -  len(laiwen_list) - len(upgrade_list) - len(fault_list) - len(especially_list)
             bar_list = [{"来文":len(laiwen_list),"应用升级":len(upgrade_list),"故障":len(fault_list),"重要工作":len(especially_list),"其他":other_all}]
@@ -712,11 +676,11 @@ class getBarHandler(BaseHandler):
             self.write(dict(code=-1, msg='没有相关数据', count=0, data=[]))
 
 penson_urls = [
-    (r"/v2/case/add/", CaseListHandler),
-    (r"/v2/case/list/", getCaseListHandler),
-    (r"/v2/case/getfile/", getCasefileHandler),
-    (r"/v2/case/delete/", caseDelete),
-    (r"/v2/case/getbar/", getBarHandler),
+    (r"/v2/plan/add/", PlanListHandler),
+    (r"/v2/plan/list/", getPlanListHandler),
+    # (r"/v2/plan/getfile/", getPlanfileHandler),
+    (r"/v2/plan/delete/", PlanDelete),
+    # (r"/v2/plan/getbar/", getBarHandler),
 ]
 
 if __name__ == "__main__":
