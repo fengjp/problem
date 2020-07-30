@@ -16,6 +16,7 @@ class Application(myApplication):
         urls = []
         urls.extend(penson_urls)
         urls.extend(plan_urls)
+        urls.extend(doc_mg_urls)
         super(Application, self).__init__(urls, **settings)
 
 
