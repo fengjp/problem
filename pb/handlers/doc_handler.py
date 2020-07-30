@@ -14,9 +14,10 @@ from docx import Document
 import urllib
 from settings import onlinePreview
 
+
 def getPreviewUrl(request, file):
     url = urllib.parse.quote_plus('http://' + request.host + '/static/doc/' + file)
-    onlinePreviewurl = onlinePreview.format(request.host)
+    onlinePreviewurl = onlinePreview.format(request.host_name)
     viewUrl = '{0}{1}&officePreviewType=pdf'.format(onlinePreviewurl, url)
     return viewUrl
 
