@@ -32,7 +32,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from docx import shared
 import os
-
+import time,datetime
 
 class CaseListHandler(BaseHandler):
     def post(self, *args, **kwargs):
@@ -51,7 +51,12 @@ class CaseListHandler(BaseHandler):
         case_stime = data.get('case_stime', False)
         case_etime = data.get('case_etime', False)
         case_creator = data.get('case_creator', False)
-        case_ltime = data.get('case_ltime', False)
+        #case_ltime = data.get('case_ltime', False)
+        stimeArray = time.strptime(case_stime,"%Y-%m-%d %H:%M:%S")
+        stimeStamp = int(time.mktime(stimeArray))
+        etimeArray = time.strptime(case_etime, "%Y-%m-%d %H:%M:%S")
+        etimeStamp = int(time.mktime(etimeArray))
+        case_ltime = int((etimeStamp - stimeStamp)/60)
 
         import uuid
         temp = str(uuid.uuid1().int >> 64)
@@ -92,7 +97,13 @@ class CaseListHandler(BaseHandler):
         case_stime = data.get('case_stime', False)
         case_etime = data.get('case_etime', False)
         case_creator = data.get('case_creator', False)
-        case_ltime = data.get('case_ltime', False)  #
+        # case_ltime = data.get('case_ltime', False)  #
+        stimeArray = time.strptime(case_stime, "%Y-%m-%d %H:%M:%S")
+        stimeStamp = int(time.mktime(stimeArray))
+        etimeArray = time.strptime(case_etime, "%Y-%m-%d %H:%M:%S")
+        etimeStamp = int(time.mktime(etimeArray))
+        case_ltime = int((etimeStamp - stimeStamp) / 60)
+
         with DBContext('w', None, True) as session:
             session.query(CaseList).filter(CaseList.id == case_id).update({
                 CaseList.case_name: case_name,
@@ -110,13 +121,14 @@ class CaseListHandler(BaseHandler):
                 CaseList.case_creator: case_creator,
                 CaseList.case_ltime: case_ltime,
             })
-            session.commit()
+
         self.write(dict(code=0, msg='成功', count=0, data=[]))
 
 
 class getCaseListHandler(BaseHandler):
     def get(self, *args, **kwargs):
         data_list = []
+        superuser_flag = 0
         # username = self.get_current_user()
         nickname = self.get_current_nickname()
         # toname = self.get_argument('key', strip=True)  # 要查询的字段
@@ -133,7 +145,9 @@ class getCaseListHandler(BaseHandler):
                 params = eval(tovalue)
             conditions = []
             if self.is_superuser:
-                pass
+                superuser_flag = 1
+                if params.get('case_executor', ''):
+                    conditions.append(CaseList.case_executor  == params['case_executor'])
             else:
                 conditions.append(or_(CaseList.case_executor == nickname, CaseList.case_creator == nickname))
             if params.get('case_name', ''):
@@ -154,12 +168,12 @@ class getCaseListHandler(BaseHandler):
                 conditions.append(CaseList.case_obj == params['case_obj'])
             if params.get('demand_unit', ''):
                 conditions.append(CaseList.demand_unit == params['demand_unit'])
-            if params.get('case_ltime', ''):
-                conditions.append(CaseList.case_ltime == params['case_ltime'])
             if params.get('case_stime', ''):
-                conditions.append(CaseList.case_stime >= params['case_stime'])
+                temptimestr = params['case_stime'] + " 00:00:00"
+                conditions.append(CaseList.ctime >= temptimestr)
             if params.get('case_etime', ''):
-                conditions.append(CaseList.case_etime <= params['case_etime'])
+                temptimestr = params['case_etime'] + "  23:59:59"
+                conditions.append(CaseList.ctime <= temptimestr)
 
             if isExport != 'false':
                 todata = session.query(CaseList).filter(*conditions).order_by(CaseList.ctime.desc()).all()
@@ -192,9 +206,9 @@ class getCaseListHandler(BaseHandler):
             data_list.append(case_dict)
 
         if len(data_list) > 0:
-            self.write(dict(code=0, msg='获取成功', count=tocount, data=data_list))
+            self.write(dict(code=0, msg='获取成功', count=tocount, data=data_list ,flag = superuser_flag ))
         else:
-            self.write(dict(code=-1, msg='没有相关数据', count=0, data=[]))
+            self.write(dict(code=-1, msg='没有相关数据', count=0, data=[],flag = superuser_flag))
 
 
 class getCasefileHandler(BaseHandler):
