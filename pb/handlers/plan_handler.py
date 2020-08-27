@@ -31,6 +31,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from docx import shared
 import os
+import time,datetime
 
 
 class PlanListHandler(BaseHandler):
@@ -50,7 +51,12 @@ class PlanListHandler(BaseHandler):
         plan_stime = data.get('plan_stime', False)
         plan_etime = data.get('plan_etime', False)
         plan_creator = data.get('plan_creator', False)
-        plan_ltime = data.get('plan_ltime', False)
+        #plan_ltime = data.get('plan_ltime', False)
+        stimeArray = time.strptime(plan_stime, "%Y-%m-%d %H:%M:%S")
+        stimeStamp = int(time.mktime(stimeArray))
+        etimeArray = time.strptime(plan_etime, "%Y-%m-%d %H:%M:%S")
+        etimeStamp = int(time.mktime(etimeArray))
+        plan_ltime = int((etimeStamp - stimeStamp) / 60)
 
         import uuid
         temp = str(uuid.uuid1().int >> 64)
@@ -91,7 +97,12 @@ class PlanListHandler(BaseHandler):
         plan_stime = data.get('plan_stime', False)
         plan_etime = data.get('plan_etime', False)
         plan_creator = data.get('plan_creator', False)
-        plan_ltime = data.get('plan_ltime', False)  #
+        # plan_ltime = data.get('plan_ltime', False)  #
+        stimeArray = time.strptime(plan_stime, "%Y-%m-%d %H:%M:%S")
+        stimeStamp = int(time.mktime(stimeArray))
+        etimeArray = time.strptime(plan_etime, "%Y-%m-%d %H:%M:%S")
+        etimeStamp = int(time.mktime(etimeArray))
+        plan_ltime = int((etimeStamp - stimeStamp) / 60)
         with DBContext('w', None, True) as session:
             session.query(PlanList).filter(PlanList.id == plan_id).update({
                 PlanList.plan_name: plan_name,
@@ -116,7 +127,7 @@ class PlanListHandler(BaseHandler):
 class getPlanListHandler(BaseHandler):
     def get(self, *args, **kwargs):
         data_list = []
-
+        superuser_flag = 0
         # username = self.get_current_user()
         nickname = self.get_current_nickname()
         # toname = self.get_argument('key', strip=True)  # 要查询的字段
@@ -138,7 +149,9 @@ class getPlanListHandler(BaseHandler):
                 # 默认查询状态是"处理中"的
                 conditions.append(PlanList.plan_status == "处理中")
             if self.is_superuser:
-                pass
+                superuser_flag = 1
+                if params.get('plan_executor', ''):
+                    conditions.append(PlanList.case_executor == params['case_executor'])
             else:
                 conditions.append(or_(PlanList.plan_executor == nickname, PlanList.plan_creator == nickname))
             if params.get('plan_name', ''):
@@ -162,9 +175,11 @@ class getPlanListHandler(BaseHandler):
             if params.get('plan_ltime', ''):
                 conditions.append(PlanList.plan_ltime == params['plan_ltime'])
             if params.get('plan_stime', ''):
-                conditions.append(PlanList.plan_stime >= params['plan_stime'])
+                temptimestr = params['plan_stime'] + " 00:00:00"
+                conditions.append(PlanList.ctime >= temptimestr)
             if params.get('plan_etime', ''):
-                conditions.append(PlanList.plan_etime <= params['plan_etime'])
+                temptimestr = params['plan_etime'] + "  23:59:59"
+                conditions.append(PlanList.ctime <= temptimestr)
 
             if isExport != 'false':
                 todata = session.query(PlanList).filter(*conditions).order_by(PlanList.ctime.desc()).all()
@@ -197,9 +212,9 @@ class getPlanListHandler(BaseHandler):
             data_list.append(plan_dict)
 
         if len(data_list) > 0:
-            self.write(dict(code=0, msg='获取成功', count=tocount, data=data_list))
+            self.write(dict(code=0, msg='获取成功', count=tocount, data=data_list,flag = superuser_flag))
         else:
-            self.write(dict(code=-1, msg='没有相关数据', count=0, data=[]))
+            self.write(dict(code=-1, msg='没有相关数据', count=0, data=[],flag = superuser_flag))
 
 
 class getPlanfileHandler(BaseHandler):
