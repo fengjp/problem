@@ -174,12 +174,20 @@ class getPlanListHandler(BaseHandler):
                 conditions.append(PlanList.demand_unit == params['demand_unit'])
             if params.get('plan_ltime', ''):
                 conditions.append(PlanList.plan_ltime == params['plan_ltime'])
-            if params.get('plan_stime', ''):
-                temptimestr = params['plan_stime'] + " 00:00:00"
-                conditions.append(PlanList.ctime >= temptimestr)
-            if params.get('plan_etime', ''):
-                temptimestr = params['plan_etime'] + "  23:59:59"
-                conditions.append(PlanList.ctime <= temptimestr)
+            # if params.get('plan_stime', ''):
+            #             #     temptimestr = params['plan_stime'] + " 00:00:00"
+            #             #     conditions.append(PlanList.ctime >= temptimestr)
+            #             # if params.get('plan_etime', ''):
+            #             #     temptimestr = params['plan_etime'] + "  23:59:59"
+            #             #     conditions.append(PlanList.ctime <= temptimestr)
+            if params.get('plan_stime', '') and params.get('plan_etime', ''):
+                stemptimestr = params['plan_stime'] + " 00:00:00"
+                etemptimestr = params['plan_etime'] + "  23:59:59"
+                conditions.append(or_(and_(PlanList.plan_stime >=  stemptimestr, PlanList.plan_etime <= etemptimestr),
+                                      and_(PlanList.plan_stime < stemptimestr, PlanList.plan_etime >= stemptimestr),
+                                      and_(PlanList.plan_stime <= etemptimestr, PlanList.plan_etime > etemptimestr),
+                                      and_(PlanList.plan_stime < stemptimestr, PlanList.plan_etime > etemptimestr),
+                                      ))
 
             if isExport != 'false':
                 todata = session.query(PlanList).filter(*conditions).order_by(PlanList.ctime.desc()).all()

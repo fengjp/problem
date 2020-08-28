@@ -168,12 +168,20 @@ class getCaseListHandler(BaseHandler):
                 conditions.append(CaseList.case_obj == params['case_obj'])
             if params.get('demand_unit', ''):
                 conditions.append(CaseList.demand_unit == params['demand_unit'])
-            if params.get('case_stime', ''):
-                temptimestr = params['case_stime'] + " 00:00:00"
-                conditions.append(CaseList.ctime >= temptimestr)
-            if params.get('case_etime', ''):
-                temptimestr = params['case_etime'] + "  23:59:59"
-                conditions.append(CaseList.ctime <= temptimestr)
+            # if params.get('case_stime', ''):
+            #     temptimestr = params['case_stime'] + " 00:00:00"
+            #     conditions.append(CaseList.ctime >= temptimestr)
+            # if params.get('case_etime', ''):
+            #     temptimestr = params['case_etime'] + "  23:59:59"
+            #     conditions.append(CaseList.ctime <= temptimestr)
+            if params.get('case_stime', '') and params.get('case_etime', ''):
+                stemptimestr = params['case_stime'] + " 00:00:00"
+                etemptimestr = params['case_etime'] + "  23:59:59"
+                conditions.append(or_(and_(CaseList.case_stime >=  stemptimestr, CaseList.case_etime <= etemptimestr),
+                                      and_(CaseList.case_stime < stemptimestr, CaseList.case_etime >= stemptimestr),
+                                      and_(CaseList.case_stime <= etemptimestr, CaseList.case_etime > etemptimestr),
+                                      and_(CaseList.case_stime < stemptimestr, CaseList.case_etime > etemptimestr),
+                                      ))
 
             if isExport != 'false':
                 todata = session.query(CaseList).filter(*conditions).order_by(CaseList.ctime.desc()).all()
