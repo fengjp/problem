@@ -41,7 +41,9 @@ class CaseListHandler(BaseHandler):
         case_priority = data.get('case_priority', None)  # 优先级
         case_executor = data.get('case_executor', False)  # 执行人
         case_type = data.get('case_type', False)  # 类型
-        demander = data.get('demander', False)  # 需求人
+        demander = data.get('demander', False) # 需求人
+        if "--" in demander:
+            demander =  demander.split("--")[0]
         case_details = data.get('case_details', False)  # 详情描述
         case_source = data.get('case_source', False)  # 来源
 
@@ -88,7 +90,9 @@ class CaseListHandler(BaseHandler):
         case_priority = data.get('case_priority', None)  # 优先级
         case_executor = data.get('case_executor', False)  # 执行人
         case_type = data.get('case_type', False)  # 类型
-        demander = data.get('demander', False)  # 需求人
+        demander = str(data.get('demander', False))  # 需求人
+        if "--" in demander:
+            demander =  demander.split("--")[0]
         case_details = data.get('case_details', False)  # 详情描述
         case_source = data.get('case_source', False)  # 来源
         demand_unit = data.get('demand_unit', False)  # 需求单位
@@ -752,6 +756,55 @@ class getBarHandler(BaseHandler):
         else:
             self.write(dict(code=-1, msg='没有相关数据', count=0, data=[]))
 
+class getdemanderList(BaseHandler):
+    def get(self, *args, **kwargs):
+        data_list = []
+        tokey = self.get_argument('key', default=None, strip=True)
+        value = self.get_argument('value', default=None, strip=True)
+
+        user_list = []
+        with DBContext('r') as session:
+            conditions = []
+            conditions.append(CaseList.demand_unit == tokey)
+            conditions.append(CaseList.demander == value)
+            todata = session.query(CaseList).filter(*conditions).order_by(CaseList.ctime.desc()).all()
+            tocount = session.query(CaseList).filter(*conditions).count()
+
+            # todata = session.query(CaseList).filter(CaseList.demander == value).order_by(CaseList.ctime.desc()).all()
+            # tocount = session.query(CaseList).filter(CaseList.demander == value).count()
+
+        for msg in todata:
+            case_dict = {}
+            data_dict = model_to_dict(msg)
+            case_dict["id"] = data_dict["id"]
+            case_dict["case_num"] = data_dict["case_num"]
+            case_dict["case_obj"] = data_dict["case_obj"]
+            case_dict["demand_unit"] = data_dict["demand_unit"]
+            case_dict["case_details"] = data_dict["case_details"]
+            case_dict["case_type"] = data_dict["case_type"]
+            case_dict["case_ltime"] = data_dict["case_ltime"]
+            case_dict["case_name"] = data_dict["case_name"]
+            case_dict["case_status"] = data_dict["case_status"]
+            case_dict["case_priority"] = data_dict["case_priority"]
+            case_dict["demander"] = data_dict["demander"]
+            case_dict["case_executor"] = data_dict["case_executor"]
+            case_dict["case_source"] = data_dict["case_source"]
+            case_dict["case_details"] = data_dict["case_details"]
+            case_dict["case_stime"] = str(data_dict["case_stime"])
+            case_dict["case_etime"] = str(data_dict["case_etime"])
+            case_dict["case_creator"] = data_dict["case_creator"]
+            case_dict["ctime"] = str(data_dict["ctime"])
+            data_list.append(case_dict)
+
+        if len(data_list) > 0:
+            self.write(dict(code=0, msg='获取成功', count=tocount, data=data_list))
+        else:
+            self.write(dict(code=-1, msg='没有相关数据', count=0, data=[]))
+
+class gefileturl(BaseHandler):
+    def get(self, *args, **kwargs):
+        urlstr = "http://" + self.request.host + "/static/report/template/" + "模板文件.xls"
+        self.write(dict(code=0, msg='获取報告成功', count=1, data=urlstr))
 
 penson_urls = [
     (r"/v2/case/add/", CaseListHandler),
@@ -759,6 +812,8 @@ penson_urls = [
     (r"/v2/case/getfile/", getCasefileHandler),
     (r"/v2/case/delete/", caseDelete),
     (r"/v2/case/getbar/", getBarHandler),
+    (r"/v2/case/demanderlist/", getdemanderList),
+    (r"/v2/case/geturl/", gefileturl),
 ]
 
 if __name__ == "__main__":
