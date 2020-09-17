@@ -765,8 +765,10 @@ class getdemanderList(BaseHandler):
         user_list = []
         with DBContext('r') as session:
             conditions = []
-            conditions.append(CaseList.demand_unit == tokey)
-            if len(value) > 0:
+            if tokey == "company":
+                conditions.append(CaseList.demand_unit == value)
+            else:
+                conditions.append(CaseList.demand_unit == tokey)
                 conditions.append(CaseList.demander == value)
             todata = session.query(CaseList).filter(*conditions).order_by(CaseList.ctime.desc()).all()
             tocount = session.query(CaseList).filter(*conditions).count()
