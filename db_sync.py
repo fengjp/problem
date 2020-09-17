@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Contact : 191715030@qq.com
-Author  : shenshuo
-Date    : 2018/12/24
 Desc    : 
 """
 
 from models.problem import Base as Pbase
 from models.doc_mg import Base as doc_base
+from models.faq import Base as faq_base
 from websdk.consts import const
 from settings import settings as app_settings
 # ORM创建表结构
@@ -28,6 +26,7 @@ def create():
     # Abase.metadata.create_all(engine)
     Pbase.metadata.create_all(engine)
     doc_base.metadata.create_all(engine)
+    faq_base.metadata.create_all(engine)
     print('[Success] 表结构创建成功!')
 
 

@@ -79,8 +79,8 @@ class DocManagerFileHandler(BaseHandler):
                 with DBContext('r') as session:
                     res_f = session.query(Docxs.f_name).filter(Docxs.sysID.in_(tags)).all()
                     files = [i.f_name for i in res_f]
-        ins_log.read_log('info', files)
-        ins_log.read_log('info', tags)
+        # ins_log.read_log('info', files)
+        # ins_log.read_log('info', tags)
         limit_start = (page - 1) * limit
         doc_list, count = readDocx(self.request, files, keyword)
         doc_list = doc_list[limit_start:limit * page]

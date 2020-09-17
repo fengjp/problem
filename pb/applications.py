@@ -10,6 +10,7 @@ from websdk.application import Application as myApplication
 from pb.handlers.penson_handler import penson_urls
 from pb.handlers.plan_handler import plan_urls
 from pb.handlers.doc_handler import doc_mg_urls
+from pb.handlers.faq_handler import faq_urls
 
 class Application(myApplication):
     def __init__(self, **settings):
@@ -17,6 +18,7 @@ class Application(myApplication):
         urls.extend(penson_urls)
         urls.extend(plan_urls)
         urls.extend(doc_mg_urls)
+        urls.extend(faq_urls)
         super(Application, self).__init__(urls, **settings)
 
 
