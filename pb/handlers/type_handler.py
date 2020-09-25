@@ -16,6 +16,7 @@ from websdk.tools import convert
 from websdk.web_logs import ins_log
 import os
 import pandas as pd
+import uuid
 
 
 class TypeListHandler(BaseHandler):
@@ -109,6 +110,7 @@ class uploadtypeList(BaseHandler):
     def post(self, *args, **kwargs):
         ###文件保存到本地
         data_list = {}
+        hexstr = uuid.uuid4().hex
         Base_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         upload_path = '{}/static/report/files/imges/'.format(Base_DIR)
         file_name = self.request.files["file"][0]["filename"] #图片文件名
@@ -116,10 +118,10 @@ class uploadtypeList(BaseHandler):
         # ins_log.read_log('info', "800000000000000000000000000000000000")
         # ins_log.read_log('info', self.request.files["file"][0]["filename"])
         # ins_log.read_log('info', "800000000000000000000000000000000000")
-        file_path = upload_path + "type_" + file_name
+        file_path = upload_path + "type_" + hexstr + file_name
         with open(file_path, 'wb') as up:
             up.write(file_body)
-        urlstr = "http://" + self.request.host + "/static/report/files/imges/" + "type_" + file_name
+        urlstr = "http://" + self.request.host + "/static/report/files/imges/" + "type_" + hexstr + file_name
         data_list["url"] = urlstr
         return   self.write(dict(code=0, msg='成功',  data=data_list))
 
