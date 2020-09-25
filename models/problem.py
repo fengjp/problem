@@ -107,3 +107,13 @@ class PlanList(Base):
     plan_etime = Column('plan_etime', DateTime(), default=datetime.now)                 #
     plan_ltime = Column('plan_ltime', String(100))  # 时长
     ctime = Column('ctime', DateTime(), default=datetime.now)  # 记录时间
+
+class TypeList(Base):
+    __tablename__ = 'mg_typelist'
+
+    ###计划工作表
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    typename = Column('typename', String(100), unique=True)  # 类型名
+    remarks = Column('remarks', String(1024))             # 描述
+    chart = Column('chart', String(300))             # 流程图url
+    ctime = Column('ctime', DateTime(), default=datetime.now)  # 记录时间
