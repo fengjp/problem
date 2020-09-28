@@ -144,9 +144,9 @@ class DataHandler(BaseHandler):
             data_list.append(case_dict)
 
         if len(data_list) > 0:
-             return  self.write(dict(code=0, msg='获取成功',  data=data_list))
+             return  self.write(dict(code=0, msg='获取成功',  data=data_list,))
         else:
-             return  self.write(dict(code=-1, msg='没有相关数据', count=0, data=[]))
+             return  self.write(dict(code=-1, msg='没有相关数据', count=0, data=[],))
 
 
 typeList_urls = [
