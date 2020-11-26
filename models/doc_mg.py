@@ -22,9 +22,21 @@ class Docxs(Base):
     ### 上传文档表
     id = Column('id', Integer, primary_key=True, autoincrement=True)
     f_name = Column('f_name', String(50), default='')
-    f_size = Column('f_size', String(50), default='')   # 单位 字节/b
+    f_size = Column('f_size', String(50), default='')  # 单位 字节/b
     f_url = Column('f_url', String(100), default='')
-    sysID = Column('sysID', Integer, default=0)         # 关联的应用系统ID
+    sysID = Column('sysID', Integer, default=0)  # 关联的应用系统ID
     ctime = Column('ctime', DateTime(), default=datetime.now, onupdate=datetime.now)
 
 
+class FoldersDir(Base):
+    __tablename__ = 'folders_dir'
+
+    ### 文件目录
+    id = Column('id', Integer, primary_key=True, autoincrement=True)
+    folderName = Column('folderName', String(50), default='')  # 文件夹名称
+    authority = Column('authority', String(50), default='')  # 权限
+    ftype = Column('ftype', Integer, default=0)  # 文件夹类型 0 私密 1 公共
+    nickName = Column('nickName', String(50), default='')  # 创建人昵称
+    userID = Column('userID', Integer, default=0)  # 创建人ID
+    preID = Column('preID', Integer, default=0)  # 上级目录ID
+    ctime = Column('ctime', DateTime(), default=datetime.now, onupdate=datetime.now)

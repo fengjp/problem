@@ -5,7 +5,7 @@ import os
 import re
 from libs.base_handler import BaseHandler
 from websdk.db_context import DBContext
-from models.doc_mg import Docxs
+from models.doc_mg import Docxs, FoldersDir, model_to_dict
 from websdk.consts import const
 from websdk.cache_context import cache_conn
 from websdk.web_logs import ins_log
@@ -148,9 +148,63 @@ class UpLoadFileHandler(BaseHandler):
         self.write(json.dumps(ret))
 
 
+class FolderFileHandler(BaseHandler):
+    def get(self):
+        preID = self.get_argument('preID', '')
+        userID = int(self.user_id)
+        dataList = []
+        with DBContext('r') as session:
+            folders = session.query(FoldersDir).filter(FoldersDir.preID == preID).all()
+            for msg in folders:
+                data_dict = model_to_dict(msg)
+                # data_dict['authority'] = [i for i in data_dict['authority']]
+                data_dict['ftype'] = str(data_dict['ftype'])
+                data_dict['ctime'] = str(data_dict['ctime'])
+                if userID == data_dict['userID'] and int(data_dict['ftype']) == 0:
+                    dataList.append(data_dict)
+                elif data_dict['ftype'] == '1':
+                    dataList.append(data_dict)
+
+        return self.write(dict(code=0, msg="获取成功", data=dataList))
+
+    def post(self):
+        data = json.loads(self.request.body.decode("utf-8"))
+        id = data.get('id')
+        folderName = data.get('folderName')
+        authority = ''.join(data.get('authority', []))
+        ftype = int(data.get('ftype'))
+        preID = data.get('preID')
+        userID = int(self.user_id)
+        nickName = self.nickname
+
+        if not folderName:
+            return self.write(dict(code=-1, msg='文件夹名称不能为空'))
+
+        with DBContext('r') as session:
+            exist_id = session.query(FoldersDir.id).filter(FoldersDir.folderName == folderName).first()
+
+        if exist_id:
+            return self.write(dict(code=-2, msg='文件夹名称已存在，请更改名称'))
+
+        else:
+            with DBContext('w', None, True) as session:
+                new_docx = FoldersDir(
+                    folderName=folderName,
+                    authority=authority,
+                    ftype=ftype,
+                    nickName=nickName,
+                    userID=userID,
+                    preID=preID,
+                )
+                session.add(new_docx)
+
+        return self.write(dict(code=0, msg='保存成功'))
+
+
 doc_mg_urls = [
     (r"/v1/pb/doc/upload/", UpLoadFileHandler),
     (r"/v1/pb/doc/", DocManagerFileHandler),
+    (r"/v1/pb/folder/", FolderFileHandler),
 ]
 
 if __name__ == "__main__":
